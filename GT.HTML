@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>𝐆𝐇𝐎𝐒𝐇 𝐓𝐑𝐀𝐃𝐄𝐑𝐒</title>
+    <style>
+        :root {
+            --primary-bg: #1e272e;
+            --body-bg: #f1f2f6;
+            --card-bg: #ffffff;
+            --btn-add: #2ed573;
+            --btn-sell: #3742fa;
+            --btn-buy: #ffa502;
+            --btn-delete: #ff4757;
+            --text-dark: #2f3542;
+            --border-color: #ced6e0;
+        }
+
+        * { box-sizing: border-box; font-family: "Arial", sans-serif; margin: 0; padding: 0; }
+        body { background-color: var(--body-bg); color: var(--text-dark); }
+        
+        header { background-color: var(--primary-bg); color: white; text-align: center; padding: 15px 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        header h1 { font-size: 26px; font-weight: bold; letter-spacing: 1px; }
+
+        .tab-container { max-width: 1200px; margin: 20px auto; padding: 0 10px; }
+        .tab-nav { display: flex; border-bottom: 3px solid var(--primary-bg); margin-bottom: 15px; overflow-x: auto; }
+        
+        .tab-btn {
+            background: #dfe4ea; border: none; padding: 12px 20px; font-size: 14px; font-weight: bold; cursor: pointer; border-radius: 6px 6px 0 0; margin-right: 5px; color: #57606f; transition: 0.2s ease; white-space: nowrap;
+        }
+        .tab-btn:hover { background: #ced6e0; }
+        .tab-btn.active { background-color: var(--primary-bg); color: white; }
+
+        .tab-content { display: none; gap: 20px; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .left-panel { flex: 1.2; background: var(--card-bg); padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); min-width: 300px; }
+        .right-panel { flex: 2; background: var(--card-bg); padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow-x: auto; }
+
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px; color: #57606f; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 14px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        .divider { border-bottom: 2px dashed var(--border-color); margin: 20px 0; }
+
+        button.action-btn { padding: 12px 15px; border: none; border-radius: 4px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.2s; width: 100%; margin-top: 10px; }
+        button.action-btn:hover { filter: brightness(0.9); }
+        .bg-add { background-color: var(--btn-add); }
+        .bg-sell { background-color: var(--btn-sell); }
+        .bg-buy { background-color: var(--btn-buy); }
+        .bg-delete { background-color: var(--btn-delete); }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid var(--border-color); padding: 10px; text-align: center; font-size: 14px; }
+        th { background-color: #f1f2f6; color: #2f3542; }
+        tbody tr:nth-child(even) { background-color: #f8f9fa; }
+        .table-btn { padding: 5px 10px; background: var(--btn-delete); color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 12px; }
+
+        .bottom-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 2px solid var(--border-color); }
+        .grand-total { font-size: 20px; font-weight: bold; color: var(--primary-bg); }
+
+        /* Dashboard Cards */
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; width: 100%; }
+        .dash-card { background: white; padding: 25px; border-radius: 8px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 5px solid; }
+        .dash-card h3 { font-size: 16px; color: #57606f; margin-bottom: 10px; }
+        .dash-card h2 { font-size: 32px; color: var(--text-dark); }
+        .card-rev { border-color: var(--btn-sell); }
+        .card-cost { border-color: var(--btn-buy); }
+        .card-profit { border-color: var(--btn-add); }
+
+        @media (max-width: 850px) { .tab-content.active { flex-direction: column; } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>𝐆𝐇𝐎𝐒𝐇 𝐓𝐑𝐀𝐃𝐄𝐑𝐒</h1>
+    </header>
+
+    <div class="tab-container">
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab(event, 'tab-inv')">📦 Inventory</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-sell')">🛒 Take Order (Sell)</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-buy')">🚚 Give Order (Restock)</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-pnl')">📈 Daily P&L Dashboard</button>
+        </div>
+
+        <div id="tab-inv" class="tab-content active">
+            <div class="left-panel">
+                <div class="form-group"><label>Item Name:</label><input type="text" id="inv-name"></div>
+                <div class="form-group"><label>Category:</label><input type="text" id="inv-cat"></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Buy Price (Cost ₹):</label><input type="number" id="inv-buy" step="0.01"></div>
+                    <div class="form-group"><label>Sell Price (MRP ₹):</label><input type="number" id="inv-sell" step="0.01"></div>
+                </div>
+                <div class="form-group"><label>Current Stock:</label><input type="number" id="inv-stock"></div>
+                <button class="action-btn bg-add" onclick="saveInventoryItem()">+ Add / Update Item</button>
+            </div>
+            <div class="right-panel">
+                <table>
+                    <thead><tr><th>Name</th><th>Buy ₹</th><th>Sell ₹</th><th>Stock</th><th>Action</th></tr></thead>
+                    <tbody id="inv-table"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-sell" class="tab-content">
+            <div class="left-panel">
+                <div class="form-group"><label>Customer Name:</label><input type="text" id="sell-cust"></div>
+                <div class="divider"></div>
+                <div class="form-group"><label>Select Item:</label>
+                    <select id="sell-item" onchange="syncSellPrice()"><option value="">-- Choose Item --</option></select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Sell Price (₹):</label><input type="number" id="sell-price" readonly style="background:#f1f2f6;"></div>
+                    <div class="form-group"><label>Qty:</label><input type="number" id="sell-qty" value="1" min="1"></div>
+                </div>
+                <button class="action-btn bg-sell" onclick="addToSellCart()">Add to Customer Bill</button>
+            </div>
+            <div class="right-panel">
+                <table>
+                    <thead><tr><th>Item</th><th>Price</th><th>Qty</th><th>Total</th><th>Action</th></tr></thead>
+                    <tbody id="sell-cart-table"></tbody>
+                </table>
+                <div class="bottom-bar">
+                    <div class="grand-total" id="sell-total-lbl">Total: ₹ 0.00</div>
+                    <button class="action-btn bg-add" style="width: auto; padding: 12px 30px;" onclick="generateCustomerBill()">Generate Bill</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-buy" class="tab-content">
+            <div class="left-panel">
+                <div class="form-group"><label>Supplier/Vendor Name:</label><input type="text" id="buy-vendor"></div>
+                <div class="divider"></div>
+                <div class="form-group"><label>Select Item to Restock:</label>
+                    <select id="buy-item" onchange="syncBuyPrice()"><option value="">-- Choose Item --</option></select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Buy Price (₹):</label><input type="number" id="buy-price" readonly style="background:#f1f2f6;"></div>
+                    <div class="form-group"><label>Qty to Buy:</label><input type="number" id="buy-qty" value="1" min="1"></div>
+                </div>
+                <button class="action-btn bg-buy" onclick="placeSupplierOrder()">Place Order & Add to Stock</button>
+            </div>
+            <div class="right-panel">
+                <h3 style="margin-bottom:15px; color:#57606f;">Today's Restock History</h3>
+                <table>
+                    <thead><tr><th>Time</th><th>Vendor</th><th>Item</th><th>Qty</th><th>Total Cost</th></tr></thead>
+                    <tbody id="buy-history-table"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-pnl" class="tab-content">
+            <div class="dashboard-grid">
+                <div class="dash-card card-rev">
+                    <h3>💰 Today's Revenue (Sales)</h3>
+                    <h2 id="dash-rev">₹ 0.00</h2>
+                </div>
+                <div class="dash-card card-cost">
+                    <h3>📦 Cost of Goods Sold</h3>
+                    <h2 id="dash-cogs">₹ 0.00</h2>
+                </div>
+                <div class="dash-card card-profit">
+                    <h3>📈 Today's Gross Profit</h3>
+                    <h2 id="dash-profit">₹ 0.00</h2>
+                </div>
+            </div>
+            
+            <div style="width: 100%; margin-top: 30px; background: white; padding: 20px; border-radius: 8px;">
+                <h3 style="color:#2f3542; margin-bottom:10px;">How this is calculated:</h3>
+                <p style="color:#57606f; line-height:1.6;">
+                    <strong>Revenue:</strong> The total money collected from customer bills today.<br>
+                    <strong>Cost of Goods Sold (COGS):</strong> The original Buy Price of the exact items you sold today.<br>
+                    <strong>Gross Profit:</strong> Revenue minus COGS. (e.g., Sold a pen for ₹10 that you bought for ₹6 = ₹4 Profit).<br>
+                    <em>Note: Stock purchased from suppliers today goes into inventory value, it does not deduct directly from today's profit until the item is actually sold.</em>
+                </p>
+                <button class="action-btn bg-delete" style="width: auto; float:right;" onclick="clearTodaysData()">Clear Today's P&L Data</button>
+                <div style="clear:both;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Database (V2 Keys) ---
+        let inventory = JSON.parse(localStorage.getItem('ghosh_v2_inv')) || [];
+        let sellCart = [];
+        let salesHistory = JSON.parse(localStorage.getItem('ghosh_v2_sales')) || [];
+        let purchaseHistory = JSON.parse(localStorage.getItem('ghosh_v2_purchases')) || [];
+
+        const getTodayDate = () => new Date().toLocaleDateString();
+
+        // --- Tab Logic ---
+        function switchTab(evt, tabId) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            evt.currentTarget.classList.add('active');
+            
+            updateDropdowns();
+            if(tabId === 'tab-pnl') calculatePnL();
+        }
+
+        function saveData() {
+            localStorage.setItem('ghosh_v2_inv', JSON.stringify(inventory));
+            localStorage.setItem('ghosh_v2_sales', JSON.stringify(salesHistory));
+            localStorage.setItem('ghosh_v2_purchases', JSON.stringify(purchaseHistory));
+        }
+
+        // --- 1. Inventory Logic ---
+        function saveInventoryItem() {
+            const name = document.getElementById('inv-name').value.trim();
+            const cat = document.getElementById('inv-cat').value.trim();
+            const buy = parseFloat(document.getElementById('inv-buy').value);
+            const sell = parseFloat(document.getElementById('inv-sell').value);
+            const stock = parseInt(document.getElementById('inv-stock').value);
+
+            if (!name || isNaN(buy) || isNaN(sell) || isNaN(stock)) return alert("Fill all fields with valid numbers.");
+            if (buy > sell) alert("Warning: Your Buy Price is higher than your Sell Price. You will make a loss on this item!");
+
+            const existing = inventory.find(i => i.name.toLowerCase() === name.toLowerCase());
+            if (existing) {
+                existing.buy = buy; existing.sell = sell; existing.stock += stock;
+            } else {
+                inventory.push({ id: Date.now(), name, cat, buy, sell, stock });
+            }
+            
+            saveData(); renderInventory(); document.querySelectorAll('#tab-inv input').forEach(inpt => inpt.value = '');
+        }
+
+        function renderInventory() {
+            const tbody = document.getElementById('inv-table'); tbody.innerHTML = '';
+            inventory.forEach(item => {
+                tbody.innerHTML += `<tr>
+                    <td>${item.name} <br><small style="color:gray">${item.cat}</small></td>
+                    <td style="color:#ffa502">₹${item.buy.toFixed(2)}</td>
+                    <td style="color:#3742fa">₹${item.sell.toFixed(2)}</td>
+                    <td style="font-weight:bold">${item.stock}</td>
+                    <td><button class="table-btn" onclick="deleteInv(${item.id})">Del</button></td>
+                </tr>`;
+            });
+            updateDropdowns();
+        }
+
+        function deleteInv(id) {
+            if(confirm("Delete item?")) { inventory = inventory.filter(i => i.id !== id); saveData(); renderInventory(); }
+        }
+
+        // --- Dropdowns Sync ---
+        function updateDropdowns() {
+            const sItem = document.getElementById('sell-item');
+            const bItem = document.getElementById('buy-item');
+            sItem.innerHTML = '<option value="">-- Choose Item --</option>';
+            bItem.innerHTML = '<option value="">-- Choose Item --</option>';
+            
+            inventory.forEach(item => {
+                if(item.stock > 0) sItem.innerHTML += `<option value="${item.id}">${item.name} (${item.stock} in stock)</option>`;
+                bItem.innerHTML += `<option value="${item.id}">${item.name} (Current stock: ${item.stock})</option>`;
+            });
+        }
+        function syncSellPrice() { 
+            const id = document.getElementById('sell-item').value;
+            document.getElementById('sell-price').value = id ? inventory.find(i=>i.id==id).sell : '';
+        }
+        function syncBuyPrice() {
+            const id = document.getElementById('buy-item').value;
+            document.getElementById('buy-price').value = id ? inventory.find(i=>i.id==id).buy : '';
+        }
+
+        // --- 2. Take Order (Sell) Logic ---
+        function addToSellCart() {
+            const id = document.getElementById('sell-item').value;
+            const qty = parseInt(document.getElementById('sell-qty').value);
+            if(!id || isNaN(qty) || qty <= 0) return alert("Select item and valid quantity.");
+            
+            const item = inventory.find(i => i.id == id);
+            const inCart = sellCart.find(c => c.id == id);
+            const currentCartQty = inCart ? inCart.qty : 0;
+
+            if (currentCartQty + qty > item.stock) return alert("Not enough stock!");
+
+            if (inCart) { inCart.qty += qty; inCart.total = inCart.qty * item.sell; }
+            else { sellCart.push({ id: item.id, name: item.name, buy: item.buy, sell: item.sell, qty, total: item.sell * qty }); }
+
+            renderSellCart();
+            document.getElementById('sell-qty').value = '1';
+        }
+
+        function renderSellCart() {
+            const tbody = document.getElementById('sell-cart-table'); tbody.innerHTML = '';
+            let total = 0;
+            sellCart.forEach((item, idx) => {
+                total += item.total;
+                tbody.innerHTML += `<tr><td>${item.name}</td><td>₹${item.sell.toFixed(2)}</td><td>${item.qty}</td><td>₹${item.total.toFixed(2)}</td>
+                <td><button class="table-btn" onclick="sellCart.splice(${idx},1); renderSellCart()">X</button></td></tr>`;
+            });
+            document.getElementById('sell-total-lbl').innerText = `Total: ₹ ${total.toFixed(2)}`;
+        }
+
+        function generateCustomerBill() {
+            const cust = document.getElementById('sell-cust').value;
+            if(!cust || sellCart.length === 0) return alert("Need customer name and items in cart.");
+
+            let totalRev = 0; let totalCogs = 0;
+            sellCart.forEach(cartItem => {
+                const invItem = inventory.find(i => i.id == cartItem.id);
+                if(invItem) invItem.stock -= cartItem.qty; // Deduct stock
+                totalRev += cartItem.total;
+                totalCogs += (cartItem.buy * cartItem.qty);
+            });
+
+            // Log Sale for P&L
+            salesHistory.push({ date: getTodayDate(), time: new Date().toLocaleTimeString(), customer: cust, revenue: totalRev, cogs: totalCogs });
+            
+            saveData();
+            alert(`Bill Generated for ${cust}\nTotal: ₹${totalRev.toFixed(2)}`);
+            sellCart = []; document.getElementById('sell-cust').value = ''; renderSellCart(); renderInventory();
+        }
+
+        // --- 3. Give Order (Buy/Restock) Logic ---
+        function placeSupplierOrder() {
+            const vendor = document.getElementById('buy-vendor').value;
+            const id = document.getElementById('buy-item').value;
+            const qty = parseInt(document.getElementById('buy-qty').value);
+            
+            if(!vendor || !id || isNaN(qty) || qty <= 0) return alert("Fill vendor, select item, and valid qty.");
+
+            const item = inventory.find(i => i.id == id);
+            item.stock += qty; // Add to stock immediately
+            const totalCost = item.buy * qty;
+
+            // Log Purchase
+            purchaseHistory.push({ date: getTodayDate(), time: new Date().toLocaleTimeString(), vendor, itemName: item.name, qty, totalCost });
+            
+            saveData();
+            alert(`Order placed to ${vendor}. ${qty} ${item.name} added to stock.`);
+            document.getElementById('buy-vendor').value = ''; document.getElementById('buy-qty').value = '1';
+            renderInventory(); renderPurchaseHistory();
+        }
+
+        function renderPurchaseHistory() {
+            const tbody = document.getElementById('buy-history-table'); tbody.innerHTML = '';
+            const todayPurchases = purchaseHistory.filter(p => p.date === getTodayDate());
+            todayPurchases.reverse().forEach(p => {
+                tbody.innerHTML += `<tr><td>${p.time}</td><td>${p.vendor}</td><td>${p.itemName}</td><td>${p.qty}</td><td style="color:var(--btn-delete); font-weight:bold;">- ₹${p.totalCost.toFixed(2)}</td></tr>`;
+            });
+        }
+
+        // --- 4. Profit & Loss Logic ---
+        function calculatePnL() {
+            const today = getTodayDate();
+            
+            const todaySales = salesHistory.filter(s => s.date === today);
+            const totalRev = todaySales.reduce((sum, sale) => sum + sale.revenue, 0);
+            const totalCogs = todaySales.reduce((sum, sale) => sum + sale.cogs, 0);
+            const grossProfit = totalRev - totalCogs;
+
+            // Update UI Counters
+            document.getElementById('dash-rev').innerText = `₹ ${totalRev.toFixed(2)}`;
+            document.getElementById('dash-cogs').innerText = `₹ ${totalCogs.toFixed(2)}`;
+            
+            const profitEl = document.getElementById('dash-profit');
+            profitEl.innerText = `₹ ${grossProfit.toFixed(2)}`;
+            profitEl.style.color = grossProfit >= 0 ? "var(--btn-add)" : "var(--btn-delete)";
+        }
+
+        function clearTodaysData() {
+            if(confirm("Clear today's Sales & Purchases history? (Inventory stock will not be changed).")) {
+                const today = getTodayDate();
+                salesHistory = salesHistory.filter(s => s.date !== today);
+                purchaseHistory = purchaseHistory.filter(p => p.date !== today);
+                saveData(); calculatePnL(); renderPurchaseHistory();
+            }
+        }
+
+        // --- Initialize ---
+        window.onload = () => { renderInventory(); renderPurchaseHistory(); };
+    </script>
+</body>
+</html>
